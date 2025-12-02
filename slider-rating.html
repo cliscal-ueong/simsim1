@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>평가 슬라이더 - 사기꾼 vs 혁신가</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            padding: 48px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            color: #1f2937;
+            margin-bottom: 16px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 48px;
+            font-size: 1rem;
+        }
+
+        .labels-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .label-left, .label-right {
+            text-align: center;
+        }
+
+        .label-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .label-left .label-title {
+            color: #ef4444;
+        }
+
+        .label-right .label-title {
+            color: #10b981;
+        }
+
+        .label-score {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .slider-container {
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        .slider-track {
+            position: relative;
+            height: 12px;
+            background: linear-gradient(to right, #ef4444, #f97316, #94a3b8, #3b82f6, #10b981);
+            border-radius: 9999px;
+            cursor: pointer;
+        }
+
+        .slider-handle {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: grab;
+            transition: box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slider-handle:active {
+            cursor: grabbing;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        .slider-handle:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .slider-handle-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slider-handle-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .scale-marks {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 4px;
+            margin-top: 8px;
+        }
+
+        .scale-mark {
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+
+        .value-display {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .value-box {
+            display: inline-block;
+            padding: 24px 48px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .value-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .value-label {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .info-box {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 16px;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            font-size: 0.875rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            color: #6b7280;
+        }
+
+        .info-item.full {
+            grid-column: 1 / -1;
+        }
+
+        .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        .export-button {
+            display: block;
+            width: 100%;
+            padding: 16px 32px;
+            margin-top: 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .export-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .export-button:active {
+            transform: translateY(0);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 32px 24px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .label-title {
+                font-size: 1.25rem;
+            }
+
+            .value-number {
+                font-size: 2.5rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-item.full {
+                grid-column: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>이번 강의자, 어땠나요?</h1>
+        <p class="subtitle">동그라미를 좌우로 드래그하여 평가하세요</p>
+
+        <div class="labels-container">
+            <div class="label-left">
+                <div class="label-title">사기꾼</div>
+                <div class="label-score">-100점</div>
+            </div>
+            <div class="label-right">
+                <div class="label-title">혁신가</div>
+                <div class="label-score">+100점</div>
+            </div>
+        </div>
+
+        <div class="slider-container">
+            <div class="slider-track" id="sliderTrack">
+                <div class="slider-handle" id="sliderHandle">
+                    <div class="slider-handle-inner" id="handleInner">
+                        <div class="slider-handle-dot" id="handleDot"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="scale-marks">
+                <span class="scale-mark">-100</span>
+                <span class="scale-mark">-50</span>
+                <span class="scale-mark">0</span>
+                <span class="scale-mark">50</span>
+                <span class="scale-mark">100</span>
+            </div>
+        </div>
+
+        <div class="value-display">
+            <div class="value-box" id="valueBox">
+                <div class="value-number" id="valueNumber">0</div>
+                <div class="value-label" id="valueLabel">중립</div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3 class="info-title">평가 기준</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="color-dot" style="background-color: #ef4444;"></span>
+                    <span>-100 ~ -51: 사기꾼</span>
+                </div>
+                <div class="info-item">
+                    <span class="color-dot" style="background-color: #f97316;"></span>
+                    <span>-50 ~ -21: 의심스러움</span>
+                </div>
+                <div class="info-item">
+                    <span class="color-dot" style="background-color: #94a3b8;"></span>
+                    <span>-20 ~ 19: 중립</span>
+                </div>
+                <div class="info-item">
+                    <span class="color-dot" style="background-color: #3b82f6;"></span>
+                    <span>20 ~ 49: 유망함</span>
+                </div>
+                <div class="info-item full">
+                    <span class="color-dot" style="background-color: #10b981;"></span>
+                    <span>50 ~ 100: 혁신가</span>
+                </div>
+            </div>
+        </div>
+
+        <button class="export-button" id="exportButton" onclick="exportToTxt()">
+            📄 결과 내보내기
+        </button>
+    </div>
+
+    <script>
+        let value = 0;
+        let isDragging = false;
+
+        const sliderTrack = document.getElementById('sliderTrack');
+        const sliderHandle = document.getElementById('sliderHandle');
+        const handleInner = document.getElementById('handleInner');
+        const handleDot = document.getElementById('handleDot');
+        const valueNumber = document.getElementById('valueNumber');
+        const valueLabel = document.getElementById('valueLabel');
+        const valueBox = document.getElementById('valueBox');
+
+        function getColor(val) {
+            if (val < -50) return '#ef4444'; // 빨강
+            if (val < 0) return '#f97316'; // 주황
+            if (val < 50) return '#3b82f6'; // 파랑
+            return '#10b981'; // 초록
+        }
+
+        function getLabel(val) {
+            if (val < -50) return '사기꾼';
+            if (val < -20) return '의심스러움';
+            if (val < 20) return '중립';
+            if (val < 50) return '유망함';
+            return '혁신가';
+        }
+
+        function updateUI() {
+            const percentage = ((value + 100) / 200) * 100;
+            sliderHandle.style.left = percentage + '%';
+            
+            const color = getColor(value);
+            const label = getLabel(value);
+            
+            handleInner.style.backgroundColor = color + '33';
+            handleInner.style.border = `3px solid ${color}`;
+            handleDot.style.backgroundColor = color;
+            
+            valueNumber.textContent = (value > 0 ? '+' : '') + value;
+            valueNumber.style.color = color;
+            valueLabel.textContent = label;
+            valueBox.style.backgroundColor = color + '33';
+        }
+
+        function updateValue(clientX) {
+            const rect = sliderTrack.getBoundingClientRect();
+            const percentage = (clientX - rect.left) / rect.width;
+            const newValue = Math.round(percentage * 200 - 100);
+            value = Math.max(-100, Math.min(100, newValue));
+            updateUI();
+        }
+
+        // 마우스 이벤트
+        sliderHandle.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            e.preventDefault();
+        });
+
+        sliderTrack.addEventListener('mousedown', (e) => {
+            updateValue(e.clientX);
+            isDragging = true;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                updateValue(e.clientX);
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // 터치 이벤트
+        sliderHandle.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            e.preventDefault();
+        });
+
+        sliderTrack.addEventListener('touchstart', (e) => {
+            updateValue(e.touches[0].clientX);
+            isDragging = true;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                updateValue(e.touches[0].clientX);
+            }
+        });
+
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // 초기 UI 업데이트
+        updateUI();
+
+        // TXT 내보내기 함수
+        function exportToTxt() {
+            const label = getLabel(value);
+            const timestamp = new Date().toLocaleString('ko-KR');
+            
+            const content = `평가 결과
+============================================
+
+점수: ${value > 0 ? '+' : ''}${value}점
+평가: ${label}
+
+평가 기준:
+- 사기꾼: -100 ~ -51점
+- 의심스러움: -50 ~ -21점
+- 중립: -20 ~ 19점
+- 유망함: 20 ~ 49점
+- 혁신가: 50 ~ 100점
+
+============================================
+작성일시: ${timestamp}
+`;
+
+            // Blob 생성 및 다운로드
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `평가결과_${value}점_${label}.txt`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
